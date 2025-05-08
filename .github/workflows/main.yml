@@ -1,6 +1,6 @@
 name: python-deployment
 
-run-name: ${{ github.actor }} - ${{ github.ref_name}} -${{ github.sha }}
+run-name: ${{ github.actor }} - ${{ github.ref_name }} - ${{ github.sha }}
 
 on:
   push:
@@ -54,7 +54,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: python-artifacts
-          path: .
+          path: ./src
 
   docker-ci:
     name: Build and Push Docker Image
@@ -82,4 +82,4 @@ jobs:
         with:
           context: ./src
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/kube2py:${{ github.sha }}
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/todoapp:${{ github.sha }}
