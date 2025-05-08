@@ -50,7 +50,36 @@ jobs:
           flake8 . --exit-zero --max-complexity=6
 
       - name: Upload python artifacts
+        if: github.ref_name == 'main'
         uses: actions/upload-artifact@v4
         with:
           name: python-artifacts
           path: .
+
+  docker-ci:
+    name: Build and Push Docker Image
+    runs-on: ubuntu-latest
+    if: github.ref_name == 'main'
+    needs: python-ci
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: python-artifacts
+          path: ./src
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./src
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/kube2py:${{ github.sha }}
